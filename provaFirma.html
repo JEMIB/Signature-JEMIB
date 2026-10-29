@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEMIB Email Signature Generator</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    @media (min-width: 850px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--text);
+    }
+
+    label .req {
+      color: #e11d48;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      background-color: #fff;
+    }
+
+    /* Gestione stili visivi Chrome Autofill */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus,
+    select:-webkit-autofill {
+      -webkit-text-fill-color: var(--text);
+      -webkit-box-shadow: 0 0 0px 1000px #f0f9ff inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+    }
+
+    .input-group {
+      display: flex;
+    }
+
+    .input-group input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .input-group .addon {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-left: none;
+      padding: 0.6rem 0.8rem;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .preview-header {
+      margin-bottom: 1rem;
+    }
+
+    .preview-header h2 {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .preview-header small {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .preview-box {
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      background: #fff;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .info-alert {
+      margin-top: 1.5rem;
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>JEMIB Email Signature Generator</h1>
+  </header>
+
+  <div class="container">
+    <!-- Form Inserimento Dati con attributi nativi per Autofill di Chrome -->
+    <form class="card" id="signatureForm" method="post" action="#" onsubmit="return false;" autocomplete="on">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="first-name">Nome <span class="req">*</span></label>
+          <input type="text" id="first-name" name="fname" autocomplete="given-name" placeholder="Mattia" value="Mattia">
+        </div>
+        <div class="form-group">
+          <label for="last-name">Cognome <span class="req">*</span></label>
+          <input type="text" id="last-name" name="lname" autocomplete="family-name" placeholder="Gentile" value="Gentile">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="area">Area <span class="req">*</span></label>
+        <select id="area" name="organization-title" autocomplete="off" onchange="handleAreaChange()">
+          <option value="CdA" selected>CdA</option>
+          <option value="IT">IT</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Commerciale">Commerciale</option>
+          <option value="Risorse Umane">Risorse Umane</option>
+          <option value="Legale">Legale</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Ruolo <span class="req">*</span></label>
+        <select id="role" name="role" autocomplete="off">
+          <!-- Opzioni caricate dinamicamente -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email <span class="req">*</span></label>
+        <div class="input-group">
+          <input type="text" id="email" name="email" autocomplete="email" placeholder="mattia.gentile" value="mattia.gentile">
+          <span class="addon">@jemib.it</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Telefono</label>
+        <div class="input-group">
+          <span class="addon" style="border-right: none; border-left: 1px solid var(--border); border-radius: 6px 0 0 6px;">+39</span>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="3334485944" value="3334485944" style="border-radius: 0 6px 6px 0;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="linkedin">Link Profilo LinkedIn</label>
+        <input type="url" id="linkedin" name="url" autocomplete="url" placeholder="https://www.linkedin.com/in/mattia-gentile" value="https://www.linkedin.com/in/mattia-gentile">
+      </div>
+    </form>
+
+    <!-- Anteprima Firma -->
+    <div class="card">
+      <div class="preview-header">
+        <h2>Anteprima</h2>
+        <small>Se l'anteprima è un po' buggata non preoccuparti. Assicurati che si veda bene su Gmail.</small>
+      </div>
+
+      <div class="preview-box">
+        <div dir="ltr" id="signaturePreview">
+          <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #333333;">
+            <tbody>
+              <tr>
+                <!-- Colonna Sinistra: Logo + Icone Social Centrate con Padding a Sinistra -->
+                <td style="vertical-align: top; text-align: center; padding-left: 20px; padding-right: 30px; width: 160px;">
+                  <img alt="JEMIB Logo" src="https://lh3.googleusercontent.com/d/1JpQaqd4Hf9Wq_Q-zJnYKqt-MyPukehO_" width="120" style="display: block; margin: 0 auto 20px auto; border: 0;">
+                  
+                  <!-- Tabella Social con Spaziatura di 10px per lato -->
+                  <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+                    <tr>
+                      <td style="padding: 0 10px;">
+                        <a href="https://www.linkedin.com/company/jemib---junior-enterprise-milano-bicocca/" target="_blank">
+                          <img alt="LinkedIn" src="https://lh3.googleusercontent.com/d/1Cwi1wogEaaabK3PKZ0EEJRIgPgtV1MOX" width="20" height="20" style="display: block; border: 0;">
+                        </a>
+                      </td>
+                      <td style="padding: 0 10px;">
+                        <a href="https://www.instagram.com/jemib_bicocca/?hl=it" target="_blank">
+                          <img alt="Instagram" src="https://lh3.googleusercontent.com/d/15SwHAKQLvsZUfvmc68Zn5swRplpdNQSw" width="20" height="20" style="display: block; border: 0;">
+                        </a>
+                      </td>
+                      <td style="padding: 0 10px;">
+                        <a href="https://www.facebook.com/JEMIBJuniorEnterpriseBicocca" target="_blank">
+                          <img alt="Facebook" src="https://lh3.googleusercontent.com/d/1L8HwIDqG1m_SU_k35eifAq_SwmzzwQC2" width="20" height="20" style="display: block; border: 0;">
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Colonna Destra: Dati Utente -->
+                <td style="vertical-align: top; padding-left: 5px;">
+                  <!-- Nome e Ruolo -->
+                  <p style="margin: 0 0 22px 0; font-size: 14px; color: #000000;">
+                    <span id="prevFullName" style="font-weight: normal;">Mattia Gentile</span> | <strong id="prevRole" style="font-weight: bold;">General Director</strong>
+                  </p>
+
+                  <!-- Dettagli Contatto (Mobile / E-mail / In) -->
+                  <div style="margin-bottom: 22px; font-size: 12px; color: #222222; line-height: 1.6;">
+                    <p style="margin: 0;" id="prevPhoneContainer">
+                      <span style="color: #222222;">Mobile /</span> <a id="prevPhoneLink" href="tel:+393334485944" style="color: #000000; text-decoration: none; font-weight: bold;">+39 3334485944</a>
+                    </p>
+                    <p style="margin: 0;">
+                      <span style="color: #222222;">E-mail /</span> <a id="prevEmailLink" href="mailto:mattia.gentile@jemib.it" style="color: #2563eb; text-decoration: none;">mattia.gentile@jemib.it</a>
+                    </p>
+                    <p style="margin: 0;" id="prevLinkedinContainer">
+                      <span style="color: #222222;">In /</span> <a id="prevLinkedinLink" href="https://www.linkedin.com/in/mattia-gentile" target="_blank" style="color: #2563eb; text-decoration: none;">Mattia Gentile</a>
+                    </p>
+                  </div>
+
+                  <!-- Intestazione Aziendale & Indirizzo -->
+                  <div style="font-size: 11px; color: #222222; line-height: 1.5;">
+                    <p style="margin: 0; font-weight: bold; color: #222222;">
+                      JEMIB - Junior Enterprise Milano Bicocca
+                    </p>
+                    <p style="margin: 2px 0 0 0;">
+                      <a href="https://maps.google.com/?q=Piazza+dell'Ateneo+nuovo+1,+20126+Milano" target="_blank" style="color: #2563eb; text-decoration: none;">Piazza dell’Ateneo nuovo 1, 20126 Milano</a> <span style="color: #222222;">//</span> <a href="http://www.jemib.it/" target="_blank" style="color: #2563eb; text-decoration: none;">www.jemib.it</a>
+                    </p>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Disclaimer GDPR Legale -->
+              <tr>
+                <td colspan="2" style="padding-top: 20px; font-size: 9px; color: #222222; line-height: 1.4;">
+                  <p style="margin: 0 0 8px 0;">
+                    <strong>IT</strong> //Ai sensi del GDPR e del Decreto Legislativo N. 196/2003 si precisa che le informazioni contenute in questo messaggio sono riservate ed a uso esclusivo del destinatario. Qualora il messaggio in parola le fosse pervenuto per errore, la invitiamo ad eliminarlo senza copiarlo e a non inoltrarlo a terzi, dandocene gentilmente comunicazione. Grazie.
+                  </p>
+                  <p style="margin: 0;">
+                    <strong>EN</strong> //Pursuant to GDPR and Legislative Decree No. 196/2003, you are hereby informed that this message contains confidential information intended only for the use of the addressee. If you are not the addressee, and have received this message by mistake, please delete it and immediately notify us. You may not copy or disseminate this message to anyone. Thank you.
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" onclick="copySignature()">Copia Firma</button>
+      </div>
+
+      <div class="info-alert">
+        <strong>Come usare:</strong> Dopo aver copiato, incolla la firma direttamente nel corpo dell'email o nelle impostazioni della firma di Gmail. Se non riesci, segui le istruzioni ufficiali di supporto.
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <small>Sviluppato da <a href="https://www.linkedin.com/in/francescosantamaria0/" target="_blank">Francesco Santamaria</a>.</small>
+  </footer>
+
+  <script>
+    const cdaRoles = [
+      'President',
+      'General Secretary',
+      'General Director',
+      'International Manager',
+      'Treasurer'
+    ];
+
+    const standardRoles = [
+      'Head of Area',
+      'Project Manager',
+      'Senior Associate',
+      'Associate'
+    ];
+
+    const inputFirstName = document.getElementById('first-name');
+    const inputLastName = document.getElementById('last-name');
+    const selectArea = document.getElementById('area');
+    const selectRole = document.getElementById('role');
+    const inputEmail = document.getElementById('email');
+    const inputPhone = document.getElementById('phone');
+    const inputLinkedin = document.getElementById('linkedin');
+
+    const prevFullName = document.getElementById('prevFullName');
+    const prevRole = document.getElementById('prevRole');
+    const prevEmailLink = document.getElementById('prevEmailLink');
+    const prevPhoneLink = document.getElementById('prevPhoneLink');
+    const prevPhoneContainer = document.getElementById('prevPhoneContainer');
+    const prevLinkedinLink = document.getElementById('prevLinkedinLink');
+    const prevLinkedinContainer = document.getElementById('prevLinkedinContainer');
+
+    function populateRoles() {
+      const isCdA = selectArea.value === 'CdA';
+      const roles = isCdA ? cdaRoles : standardRoles;
+      
+      selectRole.innerHTML = '';
+      roles.forEach(role => {
+        const opt = document.createElement('option');
+        opt.value = role;
+        opt.textContent = role;
+        if (role === 'General Director') opt.selected = true;
+        selectRole.appendChild(opt);
+      });
+    }
+
+    function handleAreaChange() {
+      populateRoles();
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const fname = inputFirstName.value.trim();
+      const lname = inputLastName.value.trim();
+      const fullNameStr = (fname || lname) ? `${fname} ${lname}`.trim() : 'Mattia Gentile';
+      
+      prevFullName.textContent = fullNameStr;
+      prevRole.textContent = selectRole.value || 'General Director';
+
+      // Email
+      const emailVal = inputEmail.value.trim();
+      const userPart = emailVal.includes('@') ? emailVal.split('@')[0] : (emailVal || 'mattia.gentile');
+      const fullEmail = `${userPart}@jemib.it`;
+      prevEmailLink.textContent = fullEmail;
+      prevEmailLink.href = `mailto:${fullEmail}`;
+
+      // Telefono
+      const phoneVal = inputPhone.value.trim();
+      if (phoneVal) {
+        prevPhoneContainer.style.display = 'block';
+        const formattedPhone = phoneVal.startsWith('+') ? phoneVal : `+39 ${phoneVal}`;
+        const cleanPhone = phoneVal.replace(/\s+/g, '');
+        prevPhoneLink.textContent = formattedPhone;
+        prevPhoneLink.href = `tel:${cleanPhone.startsWith('+') ? cleanPhone : '+39' + cleanPhone}`;
+      } else {
+        prevPhoneContainer.style.display = 'none';
+      }
+
+      // LinkedIn
+      let linkedinUrl = inputLinkedin.value.trim();
+      if (linkedinUrl) {
+        prevLinkedinContainer.style.display = 'block';
+        prevLinkedinLink.textContent = fullNameStr;
+        
+        if (!/^https?:\/\//i.test(linkedinUrl)) {
+          linkedinUrl = 'https://' + linkedinUrl;
+        }
+        prevLinkedinLink.href = linkedinUrl;
+      } else {
+        prevLinkedinContainer.style.display = 'none';
+      }
+    }
+
+    populateRoles();
+
+    // Event listener multipli per intercettare sia l'input manuale che l'autofill di Chrome
+    const allInputs = [inputFirstName, inputLastName, selectArea, selectRole, inputEmail, inputPhone, inputLinkedin];
+    const events = ['input', 'change', 'blur', 'focus', 'keyup', 'paste'];
+
+    allInputs.forEach(input => {
+      events.forEach(evt => {
+        input.addEventListener(evt, updatePreview);
+      });
+    });
+
+    // Controllo Periodico (Polling) ogni 300ms per intercettare l'Autofill silente di Chrome
+    setInterval(updatePreview, 300);
+
+    function copySignature() {
+      const signatureEl = document.getElementById('signaturePreview');
+      const range = document.createRange();
+      range.selectNode(signatureEl);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+
+      try {
+        document.execCommand('copy');
+        alert('Firma copiata con successo negli appunti!');
+      } catch (err) {
+        alert('Impossibile copiare automaticamente. Seleziona l\'anteprima e copiala manualmente.');
+      }
+
+      window.getSelection().removeAllRanges();
+    }
+  </script>
+</body>
+</html>
